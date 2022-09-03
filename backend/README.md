@@ -44,8 +44,9 @@ flask --app flaskr --debug run --reload
 
 ## Documentation
 
-##### NB: Objects returned by endpoints will have a `success` boolean property with a value of `true` or `false` to indicate whether the operation was successful or failed respectively.
-##### Text in angle brackets `<>` are placeholders. You will need to replace them with real values
+>_**Tip 1**_: Objects returned by endpoints will have a `success` boolean property with a value of `true` or `false` to indicate whether the operation was successful or failed respectively.
+#####
+> _**Tip 2**_: Text in angle brackets `<>` are placeholders. You will need to replace them with real values
 
 `GET '/questions?page=<page_number>'`
 
