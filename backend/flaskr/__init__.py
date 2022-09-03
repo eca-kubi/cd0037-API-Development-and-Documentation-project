@@ -44,7 +44,6 @@ def create_app(test_config=None):
         except Exception as err:
             abort(422)
 
-
     """
     @TODO:
     Create an endpoint to handle GET requests for questions,
@@ -69,23 +68,26 @@ def create_app(test_config=None):
 
     @app.route('/questions')
     def get_questions():
-        try:
-            page = request.args.get("page", 1, type=int)
-            questions = Question.query.all()
-            page_questions = paginate_questions(questions, page)
-            if len(page_questions) == 0:
-                abort(404)
-            # categories = [value[0] for value in db.session.query(Category.type)]
-            categories = [category.format() for category in Category.query.all()]
-            return jsonify({
-                "success": True,
-                "questions": page_questions,
-                "total_questions": len(questions),
-                "categories": categories,
-                "current_category": None
-            })
-        except Exception as err:
-            abort(422)
+        # try:
+        page = request.args.get("page", 1, type=int)
+        questions = Question.query.all()
+        page_questions = paginate_questions(questions, page)
+
+        if len(page_questions) == 0:
+            abort(404)
+
+        # categories = [value[0] for value in db.session.query(Category.type)]
+        categories = [category.format() for category in Category.query.all()]
+        return jsonify({
+            "success": True,
+            "questions": page_questions,
+            "total_questions": len(questions),
+            "categories": categories,
+            "current_category": None
+        })
+        # except Exception as err:
+        #     abort(404)
+        #     print(len(page_questions))
 
     """
     @TODO:
@@ -125,10 +127,32 @@ def create_app(test_config=None):
     of the questions list in the "List" tab.
     """
 
+    """
+    @TODO:
+    Create a POST endpoint to get questions based on a search term.
+    It should return any questions for whom the search term
+    is a substring of the question.
+
+    TEST: Search by any phrase. The questions list will update to include
+    only question that include that string within their question.
+    Try using the word "title" to start.
+    """
+
     @app.route('/questions', methods=['POST'])
-    def create_question():
+    def create_new_or_search_for_question():
         try:
             body = request.get_json()
+            if "search_term" in body:
+                search_term = request.get_json()['search_term']
+                questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+                formatted_questions = [question.format() for question in questions]
+                return jsonify({
+                    "success": True,
+                    "questions": formatted_questions,
+                    "total_questions": len(formatted_questions),
+                    "current_category": None
+                })
+
             question = Question(
                 question=body.get('question'),
                 answer=body.get('answer'),
@@ -148,32 +172,6 @@ def create_app(test_config=None):
 
     """
     @TODO:
-    Create a POST endpoint to get questions based on a search term.
-    It should return any questions for whom the search term
-    is a substring of the question.
-
-    TEST: Search by any phrase. The questions list will update to include
-    only question that include that string within their question.
-    Try using the word "title" to start.
-    """
-
-    @app.route('/search-questions', methods=['POST'])
-    def search_questions():
-        try:
-            search_term = request.get_json()['search_term']
-            questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
-            formatted_questions = [question.format() for question in questions]
-            return jsonify({
-                "success": True,
-                "questions": formatted_questions,
-                "total_questions": len(formatted_questions),
-                "current_category": None
-            })
-        except Exception as err:
-            abort(422)
-
-    """
-    @TODO:
     Create a GET endpoint to get questions based on category.
 
     TEST: In the "List" tab / main screen, clicking on one of the
@@ -183,21 +181,21 @@ def create_app(test_config=None):
 
     @app.route('/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):
-        try:
-            page = request.args.get("page", 1, type=int)
-            category = Category.query.filter(Category.id == category_id).one_or_none()
-            if category is None:
-                abort(404)
-            questions = Question.query.filter(Question.category == category_id).all()
-            paginated_questions = paginate_questions(questions, page)
-            return jsonify({
-                "success": True,
-                "questions": paginated_questions,
-                "total_questions": len(questions),
-                "current_category": category_id
-            })
-        except Exception as err:
-            abort(422)
+        # try:
+        page = request.args.get("page", 1, type=int)
+        category = Category.query.filter(Category.id == category_id).one_or_none()
+        if category is None:
+            abort(404)
+        questions = Question.query.filter(Question.category == category_id).all()
+        paginated_questions = paginate_questions(questions, page)
+        return jsonify({
+            "success": True,
+            "questions": paginated_questions,
+            "total_questions": len(questions),
+            "current_category": category_id
+        })
+        # except Exception as err:
+        #     abort(422)
 
     """
     @TODO:
@@ -233,7 +231,6 @@ def create_app(test_config=None):
         except Exception as err:
             abort(422)
 
-
     """
     @TODO:
     Create error handlers for all expected errors
@@ -242,17 +239,11 @@ def create_app(test_config=None):
 
     @app.errorhandler(404)
     def not_found(error):
-        return (
-            jsonify({"success": False, "error": 404, "message": "resource not found"}),
-            404,
-        )
+        return jsonify({"success": False, "error": 404, "message": "resource not found"}), 404
 
     @app.errorhandler(422)
     def unprocessable(error):
-        return (
-            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
-            422,
-        )
+        return jsonify({"success": False, "error": 422, "message": "unprocessable"}), 422
 
     @app.errorhandler(400)
     def bad_request(error):
@@ -260,16 +251,10 @@ def create_app(test_config=None):
 
     @app.errorhandler(405)
     def not_found(error):
-        return (
-            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
-            405,
-        )
+        return jsonify({"success": False, "error": 405, "message": "method not allowed"}), 405
 
     @app.errorhandler(500)
     def not_found(error):
-        return (
-            jsonify({"success": False, "error": 500, "message": "server encountered an error"}),
-            500,
-        )
+        return jsonify({"success": False, "error": 500, "message": "server encountered an error"}), 500
 
     return app

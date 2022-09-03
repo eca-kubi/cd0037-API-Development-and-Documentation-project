@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
 from models import setup_db, Question, Category
 
-
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
@@ -15,9 +14,9 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgresql://{}:{}@{}/{}".format('postgres', 'addmin300', 'localhost:5432',
-                                                               self.database_name)
-        setup_db(self.app, self.database_path)
+        db_password = os.getenv('DB_PASSWORD')
+        database_path = "postgresql://{}:{}@{}/{}".format('postgres', db_password, 'localhost:5432', self.database_name)
+        setup_db(self.app, database_path)
 
         self.new_question = Question(
             question="What is the biggest planet in our solar system?",
@@ -51,13 +50,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
         self.assertTrue(len(data["questions"]))
 
-    def test_404_or_422_invalid_page(self):
+    def test_404_invalid_page(self):
         res = self.client().get("/questions?page=500")
         data = json.loads(res.data)
 
-        self.assertTrue(res.status_code == 404 or res.status_code == 422)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
-        self.assertTrue(data["message"] == 'unprocessable' or data["message"] == 'resource not found')
+        self.assertTrue(data["message"] == 'resource not found')
 
     def test_create_new_question(self):
         res = self.client().post("/questions", json=self.new_question.format())
@@ -75,14 +74,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
 
     def test_delete_question(self):
-        res = self.client().delete("/questions/17")
+        res = self.client().delete("/questions/18")
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 17).one_or_none()
+        question = Question.query.filter(Question.id == 18).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertEqual(data["deleted"], 17)
+        self.assertEqual(data["deleted"], 18)
         self.assertEqual(question, None)
 
     def test_422_delete_non_existent_question(self):
@@ -94,7 +93,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "unprocessable")
 
     def test_search_with_results(self):
-        res = self.client().post("/search-questions", json={"search_term": "title"})
+        res = self.client().post("/questions", json={"search_term": "title"})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -103,7 +102,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(len(data["questions"]), 2)
 
     def test_search_without_results(self):
-        res = self.client().post("/search-questions", json={"search_term": "fzword"})
+        res = self.client().post("/questions", json={"search_term": "fzword"})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -129,11 +128,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["current_category"], 1)
         self.assertTrue(data["total_questions"])
 
-    def test_404_or_422_get_questions_by_invalid_categories(self):
+    def test_404_get_questions_by_invalid_categories(self):
         res = self.client().get("/categories/0/questions")
         data = json.loads(res.data)
 
-        self.assertTrue(res.status_code == 404 or res.status_code == 422)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
 
     def test_quizzes(self):

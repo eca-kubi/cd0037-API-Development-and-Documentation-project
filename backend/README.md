@@ -275,7 +275,7 @@ flask --app flaskr --debug run --reload
 
 ```
 
-`POST '/search-questions`
+`POST '/questions`
 
 - Endpoint to get questions based on a search term. It returns any questions for whom the search term is a substring.
 - Request Payload: An object with property `search_term` to specify the search keyword.
