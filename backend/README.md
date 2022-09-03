@@ -43,7 +43,7 @@ From within the `./src` directory first ensure you are working using your create
 To run the server, execute:
 
 ```bash
-flask run --reload
+flask --app flaskr --debug run --reload 
 ```
 
 The `--reload` flag will detect file changes and restart the server automatically.

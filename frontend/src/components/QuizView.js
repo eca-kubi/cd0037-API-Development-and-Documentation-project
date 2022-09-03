@@ -11,7 +11,7 @@ class QuizView extends Component {
       quizCategory: null,
       previousQuestions: [],
       showAnswer: false,
-      categories: {},
+      categories:[],
       numCorrect: 0,
       currentQuestion: {},
       guess: '',
@@ -55,7 +55,7 @@ class QuizView extends Component {
       contentType: 'application/json',
       data: JSON.stringify({
         previous_questions: previousQuestions,
-        quiz_category: this.state.quizCategory,
+        quiz_category: this.state.quizCategory.id,
       }),
       xhrFields: {
         withCredentials: true,
@@ -69,11 +69,9 @@ class QuizView extends Component {
           guess: '',
           forceEnd: result.question ? false : true,
         });
-        return;
       },
       error: (error) => {
         alert('Unable to load question. Please try your request again');
-        return;
       },
     });
   };
@@ -110,14 +108,14 @@ class QuizView extends Component {
           {Object.keys(this.state.categories).map((id) => {
             return (
               <div
-                key={id}
-                value={id}
+                key={id+1}
+                value={id+1}
                 className='play-category'
                 onClick={() =>
-                  this.selectCategory({ type: this.state.categories[id], id })
+                  this.selectCategory(this.state.categories[id])
                 }
               >
-                {this.state.categories[id]}
+                {this.state.categories[id].type}
               </div>
             );
           })}

@@ -48,11 +48,9 @@ class FormView extends Component {
       crossDomain: true,
       success: (result) => {
         document.getElementById('add-question-form').reset();
-        return;
       },
       error: (error) => {
         alert('Unable to add question. Please try your request again');
-        return;
       },
     });
   };
@@ -72,11 +70,11 @@ class FormView extends Component {
         >
           <label>
             Question
-            <input type='text' name='question' onChange={this.handleChange} />
+            <input type='text' name='question' required onChange={this.handleChange} />
           </label>
           <label>
             Answer
-            <input type='text' name='answer' onChange={this.handleChange} />
+            <input type='text' name='answer' required onChange={this.handleChange} />
           </label>
           <label>
             Difficulty
@@ -94,7 +92,7 @@ class FormView extends Component {
               {Object.keys(this.state.categories).map((id) => {
                 return (
                   <option key={id} value={id}>
-                    {this.state.categories[id]}
+                    {this.state.categories[id].type}
                   </option>
                 );
               })}
