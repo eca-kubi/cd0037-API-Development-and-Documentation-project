@@ -41,6 +41,7 @@ To run the server, execute:
 ```bash
 flask --app flaskr --debug run --reload 
 ```
+
 ## Documentation
 
 ##### NB: Objects returned by endpoints will have a `success` boolean property with a value of `true` or `false` to indicate whether the operation was successful or failed respectively.
