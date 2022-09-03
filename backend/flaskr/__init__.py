@@ -73,6 +73,8 @@ def create_app(test_config=None):
             page = request.args.get("page", 1, type=int)
             questions = Question.query.all()
             page_questions = paginate_questions(questions, page)
+            if len(page_questions) == 0:
+                abort(404)
             # categories = [value[0] for value in db.session.query(Category.type)]
             categories = [category.format() for category in Category.query.all()]
             return jsonify({
@@ -84,8 +86,6 @@ def create_app(test_config=None):
             })
         except Exception as err:
             abort(422)
-        finally:
-            db.session.close()
 
     """
     @TODO:
@@ -99,13 +99,14 @@ def create_app(test_config=None):
     def delete_question(question_id):
         try:
             question = Question.query.filter_by(id=question_id).one_or_none()
-            if question is None:
-                abort(404)
 
             question.delete()
 
+            questions = [question.format() for question in Question.query.all()]
+
             return jsonify({
-                "success": True
+                "success": True,
+                "deleted": question_id
             })
         except Exception as err:
             db.session.rollback()
@@ -136,7 +137,8 @@ def create_app(test_config=None):
             )
             question.insert()
             return jsonify({
-                "success": True
+                "success": True,
+                "question": question.format()
             })
         except Exception as err:
             db.session.rollback()
