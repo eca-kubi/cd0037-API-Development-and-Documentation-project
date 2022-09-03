@@ -102,7 +102,7 @@ def create_app(test_config=None):
 
             question.delete()
 
-            questions = [question.format() for question in Question.query.all()]
+            # questions = [question.format() for question in Question.query.all()]
 
             return jsonify({
                 "success": True,
