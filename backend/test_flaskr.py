@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
 from models import setup_db, Question, Category
 
+
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
