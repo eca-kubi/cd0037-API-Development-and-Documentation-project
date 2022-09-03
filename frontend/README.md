@@ -28,6 +28,6 @@ npm install
 
 ### Running the app
 
-To run the app in development mode use `npm start`.
+To run the app in development mode use `npm start`
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser, incase the browser does not start automatically.
