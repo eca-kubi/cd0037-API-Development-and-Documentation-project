@@ -70,18 +70,19 @@ def create_app(test_config=None):
     def get_questions():
         # try:
         page = request.args.get("page", 1, type=int)
-        questions = Question.query.all()
-        page_questions = paginate_questions(questions, page)
+        paginate = Question.query.paginate(page, QUESTIONS_PER_PAGE, True)
+        questions = [question.format() for question in paginate.items]
+        # page_questions = paginate_questions(questions, page)
 
-        if len(page_questions) == 0:
-            abort(404)
+        # if len(questions) == 0:
+        #     abort(404)
 
         # categories = [value[0] for value in db.session.query(Category.type)]
         categories = [category.format() for category in Category.query.all()]
         return jsonify({
             "success": True,
-            "questions": page_questions,
-            "total_questions": len(questions),
+            "questions": questions,
+            "total_questions": paginate.total,
             "categories": categories,
             "current_category": None
         })
@@ -186,12 +187,12 @@ def create_app(test_config=None):
         category = Category.query.filter(Category.id == category_id).one_or_none()
         if category is None:
             abort(404)
-        questions = Question.query.filter(Question.category == category_id).all()
-        paginated_questions = paginate_questions(questions, page)
+        paginate = Question.query.filter(Question.category == category_id).paginate(page, QUESTIONS_PER_PAGE, True)
+        questions = [question.format() for question in paginate.items]
         return jsonify({
             "success": True,
-            "questions": paginated_questions,
-            "total_questions": len(questions),
+            "questions": questions,
+            "total_questions": paginate.total,
             "current_category": category_id
         })
         # except Exception as err:
